@@ -33,12 +33,21 @@ and a real title in Screen Places after deployment. Status reports only credenti
 presence, never their contents. A successful status request does not prove provider
 credentials work; verify a real response as well.
 
+On November 25, 2026, the owner-deployed Worker returned successful live responses
+from both new APIs: TMDb supplied the title, poster and rating for *88 Minutes*,
+and adsb.lol supplied a current, valid response using the configured key. An empty
+aircraft list is permitted; it is not evidence of comprehensive reception. The
+generation manifest retains its original pre-deployment flags as a release record.
+
 ## VPS
 
 Harbour Now's collector runs on the owner's VPS, not brix. Follow
 [`../docs/VPS.md`](../docs/VPS.md). The initial published frontend is not evidence
-that the collector is installed or collecting ships. Set an HTTPS collector URL
-after the VPS service is ready, then verify its health and actual observations.
+that the collector is collecting ships. The owner installed it at
+`https://harbour.hackme.ca`; HTTPS and CoolCode CORS were verified on November 25,
+2026. The default frontend now uses that origin. The initial collector needs the
+published subscription-confirmation fix and a VPS rebuild; fresh observations
+remain to be verified after that restart.
 
 ## Deferred central integration
 
@@ -72,7 +81,7 @@ historical reference year or a website build timestamp.
 The central watchdog is **not yet registered for these five new collectors**,
 because modifying the existing hub repository was excluded from this round.
 Their native GitHub schedules and guards can run independently after publication.
-Harbour Now's probe URL remains unset until the VPS HTTPS hostname is supplied;
+Harbour Now's probe is `https://harbour.hackme.ca/api/v1/health`;
 Docker liveness alone must not be reported as healthy AIS collection. After the
 later central merge, verify dispatch permissions and a real successful refresh for
 each scheduled target rather than inferring health from these definitions.

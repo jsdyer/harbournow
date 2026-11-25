@@ -263,7 +263,7 @@
     }
   },
   "collection_modes": {
-    "jsdyer/harbournow": "continuous_vps_collector_not_yet_installed",
+    "jsdyer/harbournow": "continuous_vps_collector",
     "jsdyer/screenplaces": "github_actions_schedule",
     "jsdyer/wikitrails": "on_demand_public_api",
     "jsdyer/addresschronicle": "github_actions_schedule",
@@ -276,8 +276,8 @@
   },
   "continuous_services": {
     "jsdyer/harbournow": {
-      "status": "awaiting_user_vps_install",
-      "public_origin": null,
+      "status": "reachable_awaiting_collector_fix_restart",
+      "public_origin": "https://harbour.hackme.ca",
       "health_path": "/api/v1/health",
       "method": "GET",
       "required_fields": {
@@ -290,7 +290,7 @@
         "last_observation_at"
       ],
       "suggested_max_age_seconds": 900,
-      "notes": "Docker health checks HTTP liveness only; configure actual HTTPS origin before registering the probe. Quiet-harbour coverage can require a reviewed longer age tolerance. No GitHub workflow can recreate missed continuous AIS observations."
+      "notes": "HTTPS and CoolCode CORS verified 2026-11-25. Initial collector reconnects because of a subscription-confirmation parser defect; patched collector requires VPS pull/rebuild before live observations can be verified. Docker health checks HTTP liveness only. Quiet-harbour coverage may require a reviewed longer age tolerance. No GitHub workflow can recreate missed continuous AIS observations."
     }
   },
   "workflow_source_sha256": {
@@ -299,7 +299,7 @@
     },
     "screenplaces": {
       ".github/workflows/schedule-guard.yml": "59976f9793b55c204ed08756c7f817abd14267a75f68ac66e8ad109f8f18a5f7",
-      ".github/workflows/pages.yml": "aa84e93adff11f6dcea1b0d3cb690179085003676a2c8619ff5fdb9b8bb3bf4c"
+      ".github/workflows/pages.yml": "357cc790d56d430cc9639737d167dc2ae250c2c72446bf8b540274900ef61751"
     },
     "wikitrails": {
       ".github/workflows/pages.yml": "a3c6c97662a939e6a3dcc69a354192698d85eb33022759a713e220195ce8791b"
@@ -324,7 +324,7 @@
     },
     "canadapulse": {
       ".github/workflows/schedule-guard.yml": "ea25781e5afa539f6272b2130b149a3636843ebae9b75b39de76897cc2adf6b9",
-      ".github/workflows/pages.yml": "44f0fc98d4f97a5d29a155ebdb4a8fbc76de5e39604e548377173276c6154cfa"
+      ".github/workflows/pages.yml": "03c94ce6cfe33d23d6252153b496457bca22b5b1815322f2c4bd26b7d4b0ff70"
     },
     "planehere": {
       ".github/workflows/pages.yml": "a3c6c97662a939e6a3dcc69a354192698d85eb33022759a713e220195ce8791b"
