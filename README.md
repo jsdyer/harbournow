@@ -6,7 +6,10 @@ Identify ships observed around Halifax Harbour and Vancouver/English Bay. Explor
 
 **VPS installation:** [docs/VPS.md](docs/VPS.md)
 
-The frontend is ready to publish on GitHub Pages. Live observations require the separately installed collector and a configured HTTPS endpoint. An unconnected page explicitly shows that state; it never presents example ships as real observations.
+The public frontend connects to the owner's VPS collector at
+<https://harbour.hackme.ca>. Live observations still depend on that collector and
+AIS receiver coverage. Disconnected or stale states are explicit; the page never
+presents example ships as real observations.
 
 <!-- coolcode:guide -->
 Choose Halifax or Vancouver, search a vessel name or MMSI, and select a ship for details and its recorded track. Older positions are hidden initially; enable “Show older positions” to inspect them with their original timestamps. Entries/exits require consecutive observations across a configurable boundary, and a first sighting is not an arrival. “Time observed at anchor” begins after compatible observations in an approximate anchorage zone and resets after a long gap. Connect the HTTPS address of an installed Harbour Now collector under “Connect a collector”; never enter the AISStream key in the browser.
@@ -55,7 +58,11 @@ Edit `config/harbours.json`. Add an object with a unique `id`, `name`, IANA `tim
 
 The collector reads configuration at startup. After changes run the tests and build, then `docker compose up -d --build`. Existing event records remain dated and retain their boundary fingerprint; changed geometry resets current continuity. Preserve IDs if you want earlier events to remain available through the same harbour selector. The built frontend reads the live collector's harbour list after connection.
 
-Edit `web/config.json` to set the public `api_base` once the VPS HTTPS origin is ready, or leave it blank and connect per browser. `refresh_seconds` has a 30-second minimum. A connected origin is remembered only when the visitor chooses it. Do not put secrets in this file. Rebuild and publish via the Pages workflow.
+`web/config.json` sets the public `api_base` to `https://harbour.hackme.ca`.
+For a separate installation, change it to that server's HTTPS origin or leave it
+blank and connect per browser. `refresh_seconds` has a 30-second minimum. An
+override origin is remembered only when the visitor chooses it. Do not put secrets
+in this file. Rebuild and publish via the Pages workflow.
 
 ## Publication and operations
 

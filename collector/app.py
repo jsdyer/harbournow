@@ -21,6 +21,54 @@ ROOT = Path(__file__).resolve().parents[1]
 LOG = logging.getLogger("harbournow")
 
 
+class StreamFailure(Exception):
+    """A fixed local reason code; never carries upstream messages or credentials."""
+    def __init__(self, code):
+        self.code = code
+        super().__init__(code)
+
+
+def stream_failure_reason(error):
+    if isinstance(error, StreamFailure):
+        code = error.code
+    elif isinstance(error, (TimeoutError, asyncio.TimeoutError)):
+        code = "connection_timeout"
+    elif isinstance(error, OSError):
+        code = "network_error"
+    elif type(error).__name__.startswith("ConnectionClosed"):
+        code = "stream_closed"
+    else:
+        code = "collector_error"
+    reasons = {
+        "subscription_rejected": "AISStream rejected the subscription. Check the server-side key, message filters and account connection limit.",
+        "compression_not_confirmed": "AISStream did not confirm compressed delivery. The collector will reconnect with compression requested.",
+        "invalid_confirmation": "AISStream returned an unrecognized subscription confirmation. No credentials or response payload are exposed.",
+        "stream_closed": "The AISStream connection closed. Observations may be incomplete while reconnecting.",
+        "connection_timeout": "The AISStream connection timed out. Check outbound WSS connectivity from the VPS.",
+        "network_error": "The VPS could not maintain its outbound AISStream connection. Check DNS, TLS and network access.",
+        "collector_error": "The collector encountered an internal processing error. Check the redacted server logs.",
+    }
+    return code, reasons[code]
+
+
+def subscription_compressed(envelope):
+    # The documented control envelope is Message.CompressionEnabled, unlike AIS
+    # vessel envelopes where Message is keyed again by MessageType.
+    body = envelope.get("Message")
+    if not isinstance(body, dict):
+        raise StreamFailure("invalid_confirmation")
+    if "CompressionEnabled" not in body:
+        legacy = body.get("SubscriptionConfirmation")
+        if isinstance(legacy, dict):
+            body = legacy
+    enabled = body.get("CompressionEnabled")
+    if not isinstance(enabled, bool):
+        raise StreamFailure("invalid_confirmation")
+    if not enabled:
+        raise StreamFailure("compression_not_confirmed")
+    return True
+
+
 def load_config(path):
     config = json.loads(Path(path).read_text())
     for key, low, high in [("retention_days", 1, 90), ("stale_seconds", 60, 86400), ("transition_gap_seconds", 60, 3600), ("track_interval_seconds", 10, 3600)]:
@@ -121,11 +169,9 @@ async def collect(store, key, stop):
                         continue
                     if "error" in envelope or "Error" in envelope:
                         # Provider errors may include subscription details: never log payloads.
-                        raise RuntimeError("Provider rejected the subscription")
+                        raise StreamFailure("subscription_rejected")
                     if envelope.get("MessageType") == "SubscriptionConfirmation":
-                        body = envelope.get("Message", {}).get("SubscriptionConfirmation", {})
-                        if not body.get("CompressionEnabled"):
-                            raise RuntimeError("Compressed subscription was not confirmed")
+                        subscription_compressed(envelope)
                         store.meta("connection", {"state": "connected", "at": connected_at, "compression_confirmed": True})
                         continue
                     observation = normalize(envelope, now)
@@ -138,13 +184,14 @@ async def collect(store, key, stop):
                     if now-connected_at > 60:
                         backoff = 2
             if not stop.is_set():
-                raise ConnectionError("Stream ended")
+                raise StreamFailure("stream_closed")
         except asyncio.CancelledError:
             raise
         except Exception as exc:
             # Never log the request, raw exception text, key, or response payload.
-            LOG.warning("AIS connection interrupted (%s); reconnecting", type(exc).__name__)
-            store.meta("connection", {"state": "reconnecting", "at": time.time(), "reason": "The upstream stream was interrupted. Observations may be incomplete."})
+            code, reason = stream_failure_reason(exc)
+            LOG.warning("AIS connection interrupted (%s, %s); reconnecting", code, type(exc).__name__)
+            store.meta("connection", {"state": "reconnecting", "at": time.time(), "reason_code": code, "reason": reason})
             await asyncio.sleep(backoff+random.uniform(0, backoff/3))
             backoff = min(120, backoff*2)
 

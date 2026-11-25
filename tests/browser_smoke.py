@@ -26,6 +26,8 @@ try:
         browser=p.chromium.launch()
         page=browser.new_page(viewport={'width':1440,'height':1000})
         errors=[];page.on('pageerror',lambda error:errors.append(str(error)))
+        offline_config=json.loads((ROOT/'web/config.json').read_text());offline_config['api_base']=''
+        page.route('**/config.json',lambda route:route.fulfill(status=200,content_type='application/json',body=json.dumps(offline_config)))
         page.route('**/api/v1/**',lambda route:route.fulfill(status=404,body='not connected'))
         page.goto(url+'/index.html');page.wait_for_selector('#map svg')
         assert 'Collector not connected' in page.locator('#connection-banner').inner_text()
@@ -43,6 +45,15 @@ try:
         page.set_viewport_size({'width':390,'height':844});page.screenshot(path=str(ROOT/'browser-checks/mobile.png'),full_page=True)
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
         assert not errors,errors
+        default_page=browser.new_page()
+        default_errors=[];default_page.on('pageerror',lambda error:default_errors.append(str(error)))
+        default_origin=json.loads((ROOT/'web/config.json').read_text())['api_base']
+        default_page.route(default_origin+'/api/v1/**',mock)
+        default_page.goto(url+'/index.html')
+        default_page.wait_for_selector('.vessel-row')
+        assert default_page.locator('#count').inner_text()=='1'
+        assert 'Observations connected' in default_page.locator('#connection-banner').inner_text()
+        assert not default_errors,default_errors
         browser.close()
 finally:
     server.shutdown();server.server_close();thread.join()

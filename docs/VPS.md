@@ -90,7 +90,9 @@ The final response must include `Access-Control-Allow-Origin: https://coolcode.c
 
 ## 3. Connect the public frontend
 
-Open <https://coolcode.ca/harbournow/>, expand **Connect a collector**, and enter:
+The published CoolCode frontend now defaults to **https://harbour.hackme.ca**.
+For a separate installation, open <https://coolcode.ca/harbournow/>, expand
+**Connect a collector**, and enter your own origin:
 
 ```text
 https://harbour.yourdomain.ca
@@ -98,7 +100,9 @@ https://harbour.yourdomain.ca
 
 Choose **Remember this address on this browser** if wanted. Do not enter the API key. The map, vessel list and movement diary should populate when your collector receives observations.
 
-To make that the default for all visitors, set `api_base` in `web/config.json` to your HTTPS origin, commit that public URL, and let GitHub Pages rebuild. Send the hostname back when testing is ready so the public default and end-to-end checks can be finalized. The repository intentionally does not guess a VPS hostname.
+To change the default for all visitors, set `api_base` in `web/config.json` to your
+HTTPS origin, commit that public URL, and let GitHub Pages rebuild. The current
+configured origin was supplied by the owner; no API key is stored there.
 
 You can also visit `https://harbour.yourdomain.ca/` directly. The collector-hosted frontend detects its own API, so it does not need a separate saved address.
 
@@ -111,6 +115,35 @@ You can also visit `https://harbour.yourdomain.ca/` directly. The collector-host
 - Check that a restart preserves the database and that the UI shows stale data honestly when the stream disconnects.
 
 API methods and limits are listed in the root README. Coverage gaps must be expected; the service cannot replay missed AIS observations.
+
+### If the feed keeps reconnecting before its first observation
+
+Update to the current repository version and rebuild the image. An early version
+misread AISStream's subscription confirmation, rejected a valid compressed
+connection, and reconnected before receiving vessel positions. The correction
+reads the provider's documented `Message.CompressionEnabled` field and is covered
+by a binary-frame regression test.
+
+```sh
+git pull --ff-only
+docker compose up -d --build
+curl --fail http://127.0.0.1:8090/api/v1/health
+docker compose logs --tail 30 harbournow
+```
+
+No key, data-volume or proxy changes are required for that fix. Updated health
+responses include a safe `feed.reason_code` when reconnecting:
+
+- `subscription_rejected`: the provider rejected the subscription; check your
+  server-side key, filter settings and account connection limit.
+- `compression_not_confirmed` / `invalid_confirmation`: a compression or control
+  message mismatch; check that the current collector version is deployed.
+- `connection_timeout` / `network_error` / `stream_closed`: outbound connection,
+  TLS/network access or an upstream interruption.
+- `collector_error`: an internal processing failure; inspect the redacted logs.
+
+These fixed reason codes do not expose the key or the upstream response. A valid
+key alone does not guarantee observations in every configured area.
 
 ## Monitor and update
 

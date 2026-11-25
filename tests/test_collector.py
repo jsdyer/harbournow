@@ -12,7 +12,7 @@ from urllib.error import HTTPError
 
 from collector.model import normalize, inside, parse_time
 from collector.store import Store
-from collector.app import BoundedHTTPServer, handler_factory, load_config, maintenance, collect
+from collector.app import BoundedHTTPServer, handler_factory, load_config, maintenance, collect, subscription_compressed, stream_failure_reason, StreamFailure
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -137,11 +137,12 @@ class ConnectionTests(unittest.TestCase):
                 async def send(self,value):sent.append(json.loads(value))
                 def __aiter__(self):return self.messages()
                 async def messages(self):
-                    yield json.dumps({'MessageType':'SubscriptionConfirmation','Message':{'SubscriptionConfirmation':{'CompressionEnabled':True}}}).encode()
+                    yield (ROOT/'tests/fixtures/subscription-confirmation.json').read_bytes()
                     yield json.dumps({'MessageType':'PositionReport','MetaData':{'MMSI':123456789},'Message':{'PositionReport':{'Valid':True,'Latitude':0,'Longitude':0,'Sog':1}}}).encode()
                     stop.set()
             with patch('websockets.asyncio.client.connect',return_value=Socket()) as mock:
-                await collect(store,'TEST_SECRET_NOT_REAL',stop)
+                with patch('collector.app.asyncio.sleep',side_effect=AssertionError('A valid confirmation must not trigger reconnect backoff')):
+                    await collect(store,'TEST_SECRET_NOT_REAL',stop)
                 self.assertEqual(mock.call_args.kwargs['compression'],'deflate')
                 self.assertLessEqual(mock.call_args.kwargs['max_size'],262144)
         asyncio.run(run())
@@ -151,6 +152,39 @@ class ConnectionTests(unittest.TestCase):
         self.assertTrue(store.metadata()['connection']['compression_confirmed'])
         self.assertNotIn('TEST_SECRET_NOT_REAL',json.dumps(store.metadata()))
         store.db.close()
+
+    def test_legacy_confirmation_is_supported_but_missing_or_false_is_not(self):
+        self.assertTrue(subscription_compressed({'Message':{'SubscriptionConfirmation':{'CompressionEnabled':True}}}))
+        for message, code in [({'Message':{'CompressionEnabled':False}},'compression_not_confirmed'),({'Message':{}},'invalid_confirmation'),({'Message':{'CompressionEnabled':'true'}},'invalid_confirmation')]:
+            with self.assertRaises(StreamFailure) as caught:subscription_compressed(message)
+            self.assertEqual(caught.exception.code,code)
+
+    def test_error_codes_never_echo_provider_payloads_or_secret_text(self):
+        for exception, expected in [(StreamFailure('subscription_rejected'),'subscription_rejected'),(StreamFailure('compression_not_confirmed'),'compression_not_confirmed'),(OSError('SECRET_KEY=private upstream payload'),'network_error'),(TimeoutError('private'),'connection_timeout'),(RuntimeError('private'),'collector_error')]:
+            code,reason=stream_failure_reason(exception)
+            self.assertEqual(code,expected)
+            self.assertNotIn('private',reason)
+            self.assertNotIn('SECRET_KEY',reason)
+
+    def test_provider_rejection_and_bad_compression_record_distinct_redacted_health(self):
+        for envelope, expected in [({'error':'SECRET_KEY=must_not_leak'},'subscription_rejected'),({'MessageType':'SubscriptionConfirmation','Message':{'CompressionEnabled':False}},'compression_not_confirmed')]:
+            store=Store(':memory:',config())
+            async def run():
+                stop=asyncio.Event()
+                class Socket:
+                    async def __aenter__(self):return self
+                    async def __aexit__(self,*args):pass
+                    async def send(self,value):pass
+                    def __aiter__(self):return self.messages()
+                    async def messages(self):yield json.dumps(envelope).encode()
+                async def finish_backoff(_):stop.set()
+                with patch('websockets.asyncio.client.connect',return_value=Socket()),patch('collector.app.asyncio.sleep',side_effect=finish_backoff):
+                    await collect(store,'PRIVATE_KEY',stop)
+            asyncio.run(run())
+            state=store.metadata()['connection']
+            self.assertEqual(state['reason_code'],expected)
+            self.assertNotIn('SECRET_KEY',json.dumps(state));self.assertNotIn('PRIVATE_KEY',json.dumps(state))
+            store.db.close()
 
 
 class APITests(unittest.TestCase):
