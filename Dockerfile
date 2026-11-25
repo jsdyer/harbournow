@@ -4,6 +4,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 COPY scripts/ scripts/
 COPY web/ web/
+COPY config/ config/
 COPY tool.json README.md ./
 RUN python scripts/build.py
 
