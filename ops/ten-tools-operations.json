@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-11-25T10:50:02.155594Z",
+  "scope": "Only the ten new repositories; central operations registries are unchanged.",
+  "central_watchdog_registration": {
+    "status": "deferred_by_user_scope",
+    "registered": false,
+    "reason": "User requested no changes to existing repositories this round. Merge repositories/freshness into the existing central registries in the authorized integration round, then regenerate watchdog targets.",
+    "repositories_target": "jsdyer/jsdyer.github.io:data/operations/repositories.json",
+    "freshness_target": "jsdyer/jsdyer.github.io:data/operations/freshness.json"
+  },
+  "repositories": [
+    {
+      "repo": "jsdyer/harbournow",
+      "branch": "main",
+      "workflows": [],
+      "guarded_paths": []
+    },
+    {
+      "repo": "jsdyer/screenplaces",
+      "branch": "main",
+      "workflows": [
+        {
+          "workflow": "pages.yml",
+          "crons": [
+            "30 9 * * 4"
+          ],
+          "inputs": {
+            "refresh": "true"
+          }
+        }
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    {
+      "repo": "jsdyer/wikitrails",
+      "branch": "main",
+      "workflows": [],
+      "guarded_paths": []
+    },
+    {
+      "repo": "jsdyer/addresschronicle",
+      "branch": "main",
+      "workflows": [
+        {
+          "workflow": "pages.yml",
+          "crons": [
+            "17 8 2 * *"
+          ],
+          "inputs": {}
+        }
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    {
+      "repo": "jsdyer/torrentlens",
+      "branch": "main",
+      "workflows": [],
+      "guarded_paths": []
+    },
+    {
+      "repo": "jsdyer/skygeometry",
+      "branch": "main",
+      "workflows": [],
+      "guarded_paths": []
+    },
+    {
+      "repo": "jsdyer/budgetmirror",
+      "branch": "main",
+      "workflows": [
+        {
+          "workflow": "pages.yml",
+          "crons": [
+            "17 14 20 * *"
+          ],
+          "inputs": {}
+        }
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    {
+      "repo": "jsdyer/movebench",
+      "branch": "main",
+      "workflows": [
+        {
+          "workflow": "pages.yml",
+          "crons": [
+            "47 14 20 * *"
+          ],
+          "inputs": {}
+        }
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    {
+      "repo": "jsdyer/canadapulse",
+      "branch": "main",
+      "workflows": [
+        {
+          "workflow": "pages.yml",
+          "crons": [
+            "23 16 * * *"
+          ],
+          "inputs": {}
+        }
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    {
+      "repo": "jsdyer/planehere",
+      "branch": "main",
+      "workflows": [],
+      "guarded_paths": []
+    }
+  ],
+  "freshness": {
+    "jsdyer/screenplaces/pages.yml": {
+      "freshness": [
+        {
+          "url": "https://coolcode.ca/screenplaces/data/catalogue.json",
+          "json_path": [
+            "fetched_at"
+          ],
+          "precision": "timestamp",
+          "label": "Wikidata filming locations fetched",
+          "max_age_seconds": 864000
+        }
+      ],
+      "collection_steps": [
+        "Refresh documented filming locations"
+      ]
+    },
+    "jsdyer/budgetmirror/pages.yml": {
+      "freshness": [
+        {
+          "url": "https://coolcode.ca/budgetmirror/data/status.json",
+          "json_path": [
+            "checked_at"
+          ],
+          "precision": "timestamp",
+          "label": "Statistics Canada spending sources checked",
+          "max_age_seconds": 3456000
+        }
+      ],
+      "collection_steps": [
+        "Refresh validated Statistics Canada spending data"
+      ]
+    },
+    "jsdyer/movebench/pages.yml": {
+      "freshness": [
+        {
+          "url": "https://coolcode.ca/movebench/data/status.json",
+          "json_path": [
+            "checked_at"
+          ],
+          "precision": "timestamp",
+          "label": "Statistics Canada spending sources checked",
+          "max_age_seconds": 3456000
+        }
+      ],
+      "collection_steps": [
+        "Refresh validated Statistics Canada spending data"
+      ]
+    },
+    "jsdyer/canadapulse/pages.yml": {
+      "freshness": [
+        {
+          "url": "https://coolcode.ca/canadapulse/data/status.json",
+          "json_path": [
+            "checked_at"
+          ],
+          "precision": "timestamp",
+          "label": "Wikimedia pageview sources checked",
+          "max_age_seconds": 172800
+        }
+      ],
+      "collection_steps": [
+        "Collect complete Wikimedia daily rankings and article histories"
+      ]
+    },
+    "jsdyer/addresschronicle/pages.yml": {
+      "freshness": [
+        {
+          "url": "https://coolcode.ca/addresschronicle/data/status.json",
+          "json_path": [
+            "checked_at"
+          ],
+          "precision": "timestamp",
+          "label": "Archive directory sources checked and indexes validated",
+          "max_age_seconds": 3456000
+        }
+      ],
+      "collection_steps": [
+        "Check archive sources and rebuild page indexes"
+      ]
+    }
+  },
+  "schedule_guards": {
+    "jsdyer/screenplaces": {
+      "workflow": ".github/workflows/schedule-guard.yml",
+      "crons": [
+        "16 6 * * 6"
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    "jsdyer/addresschronicle": {
+      "workflow": ".github/workflows/schedule-guard.yml",
+      "crons": [
+        "39 23 * * 1"
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    "jsdyer/budgetmirror": {
+      "workflow": ".github/workflows/schedule-guard.yml",
+      "crons": [
+        "24 16 * * 6"
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    "jsdyer/movebench": {
+      "workflow": ".github/workflows/schedule-guard.yml",
+      "crons": [
+        "10 2 * * 5"
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    },
+    "jsdyer/canadapulse": {
+      "workflow": ".github/workflows/schedule-guard.yml",
+      "crons": [
+        "20 11 * * 0"
+      ],
+      "guarded_paths": [
+        ".github/workflows/pages.yml",
+        ".github/workflows/schedule-guard.yml"
+      ]
+    }
+  },
+  "collection_modes": {
+    "jsdyer/harbournow": "continuous_vps_collector_not_yet_installed",
+    "jsdyer/screenplaces": "github_actions_schedule",
+    "jsdyer/wikitrails": "on_demand_public_api",
+    "jsdyer/addresschronicle": "github_actions_schedule",
+    "jsdyer/torrentlens": "browser_local_no_scheduled_collection",
+    "jsdyer/skygeometry": "browser_local_no_scheduled_collection",
+    "jsdyer/budgetmirror": "github_actions_schedule",
+    "jsdyer/movebench": "github_actions_schedule",
+    "jsdyer/canadapulse": "github_actions_schedule",
+    "jsdyer/planehere": "on_demand_public_api"
+  },
+  "continuous_services": {
+    "jsdyer/harbournow": {
+      "status": "awaiting_user_vps_install",
+      "public_origin": null,
+      "health_path": "/api/v1/health",
+      "method": "GET",
+      "required_fields": {
+        "service": "ok",
+        "configured": true,
+        "feed.state": "connected",
+        "observations_fresh": true
+      },
+      "observation_timestamp_path": [
+        "last_observation_at"
+      ],
+      "suggested_max_age_seconds": 900,
+      "notes": "Docker health checks HTTP liveness only; configure actual HTTPS origin before registering the probe. Quiet-harbour coverage can require a reviewed longer age tolerance. No GitHub workflow can recreate missed continuous AIS observations."
+    }
+  },
+  "workflow_source_sha256": {
+    "harbournow": {
+      ".github/workflows/pages.yml": "0a2c79e287973a5f49597f89aa713380591535dc64811fb978e3eecbdd9f5385"
+    },
+    "screenplaces": {
+      ".github/workflows/schedule-guard.yml": "59976f9793b55c204ed08756c7f817abd14267a75f68ac66e8ad109f8f18a5f7",
+      ".github/workflows/pages.yml": "aa84e93adff11f6dcea1b0d3cb690179085003676a2c8619ff5fdb9b8bb3bf4c"
+    },
+    "wikitrails": {
+      ".github/workflows/pages.yml": "a3c6c97662a939e6a3dcc69a354192698d85eb33022759a713e220195ce8791b"
+    },
+    "addresschronicle": {
+      ".github/workflows/schedule-guard.yml": "5704c7a487b998aa7af1c4c18dddcdf6f437cc6094ffa68c04aee4d8b108c15b",
+      ".github/workflows/pages.yml": "589dfa34e72691db78b98cb487f738b536eb42242266604e42be0ecc73f902a1"
+    },
+    "torrentlens": {
+      ".github/workflows/pages.yml": "a3c6c97662a939e6a3dcc69a354192698d85eb33022759a713e220195ce8791b"
+    },
+    "skygeometry": {
+      ".github/workflows/pages.yml": "a3c6c97662a939e6a3dcc69a354192698d85eb33022759a713e220195ce8791b"
+    },
+    "budgetmirror": {
+      ".github/workflows/schedule-guard.yml": "cebc717c6dd5691d2b96a2f836f14b3af8399e9460a6cd5812e623ebb1918e23",
+      ".github/workflows/pages.yml": "69eecd6973768b22d0ec70414d71fb6569ed932ea5e78890b05a17c2060bdf7e"
+    },
+    "movebench": {
+      ".github/workflows/schedule-guard.yml": "756f7ae65190a5a63d3ab83fcbc8861401d94516ccf429d4998ad270d5049bc2",
+      ".github/workflows/pages.yml": "bf9c33554a15731fd619e26b7fe9358b5a03269f789aef687ddace8382eb0ea6"
+    },
+    "canadapulse": {
+      ".github/workflows/schedule-guard.yml": "ea25781e5afa539f6272b2130b149a3636843ebae9b75b39de76897cc2adf6b9",
+      ".github/workflows/pages.yml": "44f0fc98d4f97a5d29a155ebdb4a8fbc76de5e39604e548377173276c6154cfa"
+    },
+    "planehere": {
+      ".github/workflows/pages.yml": "a3c6c97662a939e6a3dcc69a354192698d85eb33022759a713e220195ce8791b"
+    }
+  },
+  "pending_reviews": [],
+  "validation": {
+    "source": "Parsed actual workflow files with existing central parse_repository function, read-only.",
+    "freshness_fields_checked_in_local_snapshot": true,
+    "live_freshness_or_workflow_completion_verified": false,
+    "central_watchdog_schema_validated": true
+  }
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta name="color-scheme" content="light"><meta name="theme-color" content="#123e4b">
+  <title>Identify ships in Halifax and Vancouver harbours | Harbour Now</title>
+  <link rel="stylesheet" href="style.css"><script type="module" src="app.mjs"></script>
+  {{VISIT_COUNTER}}
+</head>
+<body data-tool-id="{{TOOL_ID}}">
+<a class="skip" href="#main">Skip to harbour explorer</a>
+<header><a class="home" href="https://coolcode.ca/">CoolCode</a><span>WATERFRONT OBSERVATIONS</span><a href="{{SOURCE_URL}}">Source & setup</a></header>
+<main id="main">
+  <section class="intro"><div><p class="eyebrow">HALIFAX · VANCOUVER</p><h1>{{TITLE}}</h1><p class="lede">Put a name to the ships on the water.</p><p>Explore observed vessels, harbour movements and time at anchor. Every position has a timestamp; gaps stay visible.</p></div><div class="intro-mark" aria-hidden="true"><svg viewBox="0 0 120 100"><path d="M20 49h78L83 69H37zM44 49V32h27v17M57 32V16M49 21h21M10 80q12-12 24 0t24 0t24 0t24 0M10 91q12-12 24 0t24 0t24 0t24 0"/></svg></div></section>
+  <section id="connection-banner" class="notice" aria-live="polite"><strong>Collector not connected</strong><p>The map is ready. Live vessels and movement history will appear after a Harbour Now collector is connected. No example ships are shown as live data.</p><a href="https://github.com/jsdyer/harbournow/blob/main/docs/VPS.md">VPS installation instructions</a></section>
+  <section class="toolbar" aria-label="Harbour controls">
+    <label>Harbour<select id="harbour"><option value="halifax">Halifax Harbour</option><option value="vancouver">Vancouver & English Bay</option></select></label>
+    <label class="search">Find a vessel<input id="search" type="search" placeholder="Name, MMSI, destination…" maxlength="100"></label>
+    <label>Vessel type<select id="type"><option value="">All types</option></select></label>
+    <button id="refresh" type="button">Refresh</button>
+    <label class="check"><input id="stale" type="checkbox">Show older positions</label>
+  </section>
+  <section class="stats" aria-label="Observation totals"><div><span id="count">—</span><p>recent vessels</p></div><div><span id="anchor-count">—</span><p>observed at anchor</p></div><div><span id="entry-count">—</span><p>entries · past 24 hours</p></div><div><span id="exit-count">—</span><p>exits · past 24 hours</p></div></section>
+  <div class="workspace"><section class="map-panel" aria-labelledby="map-title"><div class="panel-head"><h2 id="map-title">Harbour map</h2><div class="map-controls"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button><button id="recenter">Reset view</button></div></div><div id="map" role="region" aria-label="Map of observed vessels; equivalent details in the vessel list"><div id="tiles" aria-hidden="true"></div><svg id="overlay" role="img" aria-label="Vessel locations and selected track"></svg><p id="map-empty">Connect a collector to see observed vessels.</p><a class="attribution" href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a></div><p id="boundary-note" class="caption"></p><p class="caption">Teal: current position · amber: observed anchoring · grey: older position. Dashed outline: observation boundary. Map is not for navigation.</p></section>
+  <aside class="vessel-panel" aria-labelledby="vessel-title"><div class="panel-head"><h2 id="vessel-title">Vessels</h2><span id="filtered-count"></span></div><div id="vessels"><p class="empty">No observations loaded.</p></div></aside></div>
+  <section id="detail" class="detail" hidden aria-live="polite"></section>
+  <section class="events"><div class="panel-head"><div><p class="eyebrow">RECORDED WHILE THE COLLECTOR IS RUNNING</p><h2>Movement diary</h2></div><div class="event-controls"><label>Period<select id="period"><option value="24">Past 24 hours</option><option value="168">Past 7 days</option><option value="720">Past 30 days</option></select></label><button id="export">Download CSV</button></div></div><p class="caption">Entries and exits need consecutive observations across the configured boundary. First sightings and observations after long gaps are not counted as arrivals.</p><div class="table-scroll"><table><thead><tr><th>Vessel</th><th>Observation</th><th>Local harbour time</th></tr></thead><tbody id="events"><tr><td colspan="3">No movement history loaded.</td></tr></tbody></table></div><p class="caption">Showing up to the most recent 200 events for the selected period.</p></section>
+  <details class="settings"><summary>Connect a collector</summary><form id="connection-form"><p>Use your HTTPS Harbour Now server origin. This browser contacts that server for observations. This is a server address, never an AISStream API key.</p><label>Collector address<input id="endpoint" type="url" placeholder="https://harbour.example.com" autocomplete="url"></label><label class="check"><input id="remember" type="checkbox">Remember this address on this browser</label><div><button>Connect</button><button id="disconnect" type="button" class="secondary">Clear saved address</button></div><p id="connection-error" role="alert"></p></form></details>
+  <section class="about"><h2>What the observations mean</h2><div><p><strong>Seen, not guaranteed.</strong> AIS receiver coverage varies. A quiet map may mean no reception, not an empty harbour. Destinations are vessel-reported text, not confirmed itineraries.</p><p><strong>Time observed at anchor.</strong> Two minutes of compatible reports inside an approximate anchorage zone are required. A long observation gap resets the timer. This is not an official waiting-time statistic.</p><p><strong>Your privacy.</strong> Search and filters run locally. An optional collector address is saved only if requested. The collector receives your requests; map tiles are requested from OpenStreetMap. No AIS key belongs in this page.</p></div></section>
+</main>
+<footer><span>A CoolCode waterfront tool</span><a href="https://aisstream.io/">AIS data: AISStream</a><a href="{{SOURCE_URL}}">GitHub</a>{{ISSUE_LINK}}</footer>
+</body></html>

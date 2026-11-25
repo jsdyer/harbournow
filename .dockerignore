@@ -1,0 +1,9 @@
+.git
+.env
+.venv
+data
+dist
+browser-checks
+__pycache__
+**/__pycache__
+ops

@@ -1,0 +1,34 @@
+{
+  "schema": "coolcode.ten-tools-release.v1",
+  "repository_scope": [
+    "harbournow",
+    "screenplaces",
+    "wikitrails",
+    "addresschronicle",
+    "torrentlens",
+    "skygeometry",
+    "budgetmirror",
+    "movebench",
+    "canadapulse",
+    "planehere"
+  ],
+  "existing_repositories_modified": false,
+  "baseline_sha256": "e94a2ec4810c138bfc1453732c225cc2549d0f539868de749cb7ba5055332cbc",
+  "worker_sha256": "8e4adda8814f60b0a5716d4c0c0cba2e4486095e5708c0d8261518119eaf0144",
+  "registered_ids": 267,
+  "modules": [
+    {
+      "repo": "jsdyer/screenplaces",
+      "path": "services/gateway.mjs",
+      "sha256": "8c29d6f9ded31865a7beee5a24257b0b34403fdde3a37b7eaaca333ce29c19c7"
+    },
+    {
+      "repo": "jsdyer/planehere",
+      "path": "services/gateway.js",
+      "sha256": "72b06fc5caed728bee70a5407b179af759fabc143eeac2bd986ba8f23771452b"
+    }
+  ],
+  "worker_deployed": false,
+  "vps_deployed": false,
+  "hub_catalogue_sitemap_watchdog": "Prepared separately; not applied because this round is limited to the ten new repositories."
+}

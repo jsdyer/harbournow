@@ -1,0 +1,226 @@
+[
+  {
+    "id": "harbournow",
+    "title": "Harbour Now",
+    "description": "Identify observed ships around Halifax and Vancouver, explore recorded harbour movements, and compare time observed at anchor.",
+    "category": "places",
+    "tags": [
+      "ships",
+      "AIS",
+      "Halifax",
+      "Vancouver",
+      "English Bay",
+      "harbours",
+      "anchorage"
+    ],
+    "icon": "map",
+    "url": "/harbournow/",
+    "source": "https://github.com/jsdyer/harbournow",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "live",
+      "detail": "A separately installed VPS collector records AISStream observations continuously. Position dates, observation gaps and approximate boundaries are explicit. Requires a connected collector."
+    }
+  },
+  {
+    "id": "screenplaces",
+    "title": "Screen Places",
+    "description": "Find documented film and television locations, compare location precision and save a filming-location outing.",
+    "category": "media",
+    "tags": [
+      "film",
+      "television",
+      "filming locations",
+      "Vancouver",
+      "Halifax",
+      "Wikidata"
+    ],
+    "icon": "film",
+    "url": "/screenplaces/",
+    "source": "https://github.com/jsdyer/screenplaces",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "mixed",
+      "detail": "Weekly Wikidata filming-location captures, with optional live TMDb title details and direct place queries."
+    }
+  },
+  {
+    "id": "wikitrails",
+    "title": "Wiki Trails",
+    "description": "Discover nearby history, buildings and landmarks from Wikipedia, then save a personal walking list.",
+    "category": "places",
+    "tags": [
+      "Wikipedia",
+      "walking",
+      "places",
+      "Halifax",
+      "Vancouver",
+      "local history"
+    ],
+    "icon": "map",
+    "url": "/wikitrails/",
+    "source": "https://github.com/jsdyer/wikitrails",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "live",
+      "detail": "Wikipedia geotagged articles and excerpts near a chosen place, with OpenStreetMap tiles."
+    }
+  },
+  {
+    "id": "addresschronicle",
+    "title": "Address Chronicle",
+    "description": "Search historical Vancouver and Halifax directories by address, street, person or business, with original scanned-page citations.",
+    "category": "places",
+    "tags": [
+      "history",
+      "directories",
+      "Vancouver",
+      "Halifax",
+      "addresses",
+      "archives"
+    ],
+    "icon": "map",
+    "url": "/addresschronicle/",
+    "source": "https://github.com/jsdyer/addresschronicle",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "snapshot",
+      "detail": "Page-indexed Internet Archive OCR from selected historical Vancouver and Halifax directories;monthly source checks."
+    }
+  },
+  {
+    "id": "torrentlens",
+    "title": "Torrent Lens",
+    "description": "Inspect torrent files and magnet links locally: see files, sizes, hashes, trackers and filename warnings without downloading the content.",
+    "category": "security",
+    "tags": [
+      "torrent",
+      "magnet",
+      "privacy",
+      "files",
+      "hash",
+      "BitTorrent"
+    ],
+    "icon": "scan-search",
+    "url": "/torrentlens/",
+    "source": "https://github.com/jsdyer/torrentlens",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "local",
+      "detail": "Reads torrent metadata or magnet links locally. Does not contact trackers, join peers or download the described files."
+    }
+  },
+  {
+    "id": "skygeometry",
+    "title": "Sky Geometry",
+    "description": "Convert RA and declination to altitude and azimuth, plan target visibility and compare sky coordinates in your browser.",
+    "category": "field-kit",
+    "tags": [
+      "astronomy",
+      "coordinates",
+      "RA Dec",
+      "altitude",
+      "azimuth",
+      "observing"
+    ],
+    "icon": "moon-star",
+    "url": "/skygeometry/",
+    "source": "https://github.com/jsdyer/skygeometry",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "local",
+      "detail": "Astronomy Engine calculates fixed sky-coordinate transformations locally from your location, date and selected coordinate system."
+    }
+  },
+  {
+    "id": "budgetmirror",
+    "title": "Budget Mirror",
+    "description": "Compare your household spending with published Canadian averages, privately in your browser.",
+    "category": "money",
+    "tags": [
+      "Canada",
+      "household",
+      "budget"
+    ],
+    "icon": "wallet",
+    "url": "/budgetmirror/",
+    "source": "https://github.com/jsdyer/budgetmirror",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "mixed",
+      "detail": "Statistics Canada household spending averages, with private comparisons calculated in your browser."
+    }
+  },
+  {
+    "id": "movebench",
+    "title": "Move Bench",
+    "description": "Compare two places using your rent, job offers and moving costs to see the monthly difference.",
+    "category": "money",
+    "tags": [
+      "moving",
+      "rent",
+      "salary",
+      "comparison"
+    ],
+    "icon": "wallet",
+    "url": "/movebench/",
+    "source": "https://github.com/jsdyer/movebench",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "mixed",
+      "detail": "Your private pay and cost scenarios, with separately labelled Statistics Canada provincial household-spending context."
+    }
+  },
+  {
+    "id": "canadapulse",
+    "title": "Canada Pulse",
+    "description": "Explore Wikipedia reading trends in Canada and worldwide interest in Canadian topics.",
+    "category": "media",
+    "tags": [
+      "Wikipedia",
+      "pageviews",
+      "Canada",
+      "reading",
+      "trends"
+    ],
+    "icon": "chart-no-axes-combined",
+    "url": "/canadapulse/",
+    "source": "https://github.com/jsdyer/canadapulse",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "snapshot",
+      "detail": "Wikimedia daily Canadian readership rankings and worldwide user pageviews for a configurable Canadian-topic list. Daily scheduled checks."
+    }
+  },
+  {
+    "id": "planehere",
+    "title": "Plane Here",
+    "description": "Identify aircraft near you by callsign, direction, distance and altitude, with dated ADS-B observations.",
+    "category": "field-kit",
+    "tags": [
+      "aircraft",
+      "ADS-B",
+      "Halifax",
+      "Vancouver",
+      "aviation"
+    ],
+    "icon": "plane",
+    "url": "/planehere/",
+    "source": "https://github.com/jsdyer/planehere",
+    "hosting": "project",
+    "access": "browser",
+    "data_info": {
+      "mode": "live",
+      "detail": "Community ADS-B observations from adsb.lol, shared in five-minute area snapshots with individual position times."
+    }
+  }
+]

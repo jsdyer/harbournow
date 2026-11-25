@@ -1,0 +1,6 @@
+{
+  "api_base": "",
+  "refresh_seconds": 30,
+  "default_harbour": "halifax",
+  "map_tiles": "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+}

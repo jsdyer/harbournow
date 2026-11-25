@@ -1,0 +1,24 @@
+{
+  "retention_days": 30,
+  "stale_seconds": 900,
+  "transition_gap_seconds": 600,
+  "track_interval_seconds": 60,
+  "harbours": [
+    {
+      "id": "halifax", "name": "Halifax Harbour", "timezone": "America/Halifax",
+      "center": [44.650, -63.565], "zoom": 12,
+      "subscription_bbox": [[44.38, -63.78], [44.80, -63.35]],
+      "boundary": [[44.568,-63.570],[44.568,-63.495],[44.630,-63.540],[44.710,-63.610],[44.745,-63.660],[44.745,-63.700],[44.675,-63.635],[44.615,-63.580]],
+      "anchorage": [[44.600,-63.565],[44.600,-63.520],[44.630,-63.535],[44.650,-63.565],[44.650,-63.590]],
+      "boundary_note": "Approximate harbour observation boundary, not a legal port limit. Anchorage area is an approximate observation zone."
+    },
+    {
+      "id": "vancouver", "name": "Vancouver & English Bay", "timezone": "America/Vancouver",
+      "center": [49.300, -123.120], "zoom": 12,
+      "subscription_bbox": [[49.15,-123.50],[49.40,-122.85]],
+      "boundary": [[49.265,-123.280],[49.315,-123.280],[49.330,-123.180],[49.330,-122.900],[49.270,-122.900],[49.270,-123.120],[49.245,-123.200]],
+      "anchorage": [[49.265,-123.280],[49.310,-123.280],[49.310,-123.190],[49.280,-123.140],[49.260,-123.200]],
+      "boundary_note": "Approximate Burrard Inlet and English Bay observation boundary, not a legal port limit or official anchorage assignment."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "harbournow",
+  "title": "Harbour Now",
+  "description": "Identify observed ships around Halifax and Vancouver, explore recorded harbour movements, and compare time observed at anchor.",
+  "category": "places",
+  "tags": ["ships", "AIS", "Halifax", "Vancouver", "English Bay", "harbours", "anchorage"],
+  "icon": "map",
+  "url": "/harbournow/",
+  "source": "https://github.com/jsdyer/harbournow",
+  "hosting": "project",
+  "access": "browser",
+  "data_info": {
+    "mode": "live",
+    "detail": "A separately installed VPS collector records AISStream observations continuously. Position dates, observation gaps and approximate boundaries are explicit. Requires a connected collector."
+  }
+}

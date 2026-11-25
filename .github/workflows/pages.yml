@@ -1,0 +1,107 @@
+name: Browser tool · Check and publish
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      publish: ${{ steps.identity.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Test the application
+        run: node --test tests/*.test.mjs
+      - name: Check the complete manual Worker integration bundle
+        run: node --test ops/ten-tools-worker.test.mjs
+      - name: Test the builder
+        run: python3 -m unittest discover -s tests -v
+      - name: Build the static application
+        run: python3 scripts/build.py
+      - name: Build VPS container and check the explicit no-key state
+        run: |
+          docker build -t harbournow-test .
+          docker run -d --name harbournow-check -p 127.0.0.1:8090:8090 harbournow-test
+          python3 - <<'PY'
+          import json, time, urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8090/api/v1/health', timeout=2) as response:
+                      data = json.load(response)
+                  assert data['service'] == 'ok'
+                  assert data['configured'] is False
+                  assert data['observations_fresh'] is False
+                  break
+              except OSError:
+                  time.sleep(1)
+          else:
+              raise SystemExit('Container health did not become available')
+          PY
+          docker stop harbournow-check
+          docker rm harbournow-check
+      - name: Check whether the tool has been initialized
+        id: identity
+        env:
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          tool_id = json.load(open('tool.json'))['id']
+          ready = tool_id != 'coolcode-tool-template' and tool_id == os.environ['REPOSITORY_NAME']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'publish={str(ready).lower()}\n')
+          PY
+      - name: Install browser test dependencies
+        run: |
+          python3 -m pip install -r tests/browser-requirements.txt
+          python3 -m playwright install --with-deps chromium
+      - name: Check application in a browser
+        run: python3 tests/browser_smoke.py
+      - name: Save browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-checks
+          path: browser-checks/
+          retention-days: 7
+      - name: Save reviewable site
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-tool-preview
+          path: dist/
+          include-hidden-files: true
+          retention-days: 7
+      - name: Package Pages site
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.identity.outputs.publish == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.build.outputs.publish == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v5
+        id: publish
