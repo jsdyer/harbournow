@@ -45,13 +45,20 @@ class NormalizationTests(unittest.TestCase):
         e=self.envelope();e["MessageType"]="BaseStationReport";self.assertIsNone(normalize(e,10000))
 
     def test_static_message_preserves_missing_fields(self):
-        e={"MessageType":"StaticDataReport","MetaData":{"MMSI":123456789},"Message":{"StaticDataReport":{"ReportA":{"Name":"NEW NAME"}}}}
+        e={"MessageType":"StaticDataReport","MetaData":{"MMSI":123456789},"Message":{"StaticDataReport":{"ReportA":{"Valid":True,"Name":"NEW NAME"}}}}
         result=normalize(e,10000);self.assertEqual(result["name"],"NEW NAME");self.assertNotIn("lat",result);self.assertNotIn("destination",result)
 
     def test_timestamp_validation(self):
         self.assertEqual(parse_time(None,10000),10000)
         self.assertIsNone(parse_time("not a date",10000))
         self.assertIsNone(parse_time("2030-01-01T00:00:00Z",10000))
+
+    def test_long_range_unavailable_speed_is_not_63_knots(self):
+        envelope={'MessageType':'LongRangeAisBroadcastMessage','MetaData':{'MMSI':123456789},'Message':{'LongRangeAisBroadcastMessage':{'Valid':True,'Latitude':0,'Longitude':0,'Sog':63,'Cog':511}}}
+        observation=normalize(envelope,10000)
+        self.assertIsNone(observation['speed']);self.assertIsNone(observation['course'])
+        envelope['Message']['LongRangeAisBroadcastMessage']['Sog']=62
+        self.assertEqual(normalize(envelope,10001)['speed'],62)
 
 
 class StoreTests(unittest.TestCase):
@@ -99,6 +106,27 @@ class StoreTests(unittest.TestCase):
     def test_static_data_does_not_make_position_fresh(self):
         self.store.ingest(point(10000));self.store.ingest({'mmsi':'123456789','observed_at':12000,'static_at':12000,'destination':'Halifax'})
         ship=self.store.snapshot('test',12000)[0];self.assertEqual(ship['position_at'],10000);self.assertTrue(ship['stale']);self.assertEqual(ship['destination'],'Halifax')
+
+    def test_split_static_reports_preserve_fields_from_the_other_valid_part(self):
+        self.store.ingest(point(10000))
+        self.store.ingest({'mmsi':'123456789','observed_at':10001,'static_at':10001,'name':'KNOWN NAME','ship_type':70,'callsign':'KNOWN'})
+        part_a={'MessageType':'StaticDataReport','MetaData':{'MMSI':123456789,'ShipName':'STALE META'},'Message':{'StaticDataReport':{'Valid':True,'ReportA':{'Valid':True,'Name':'NEW NAME'},'ReportB':{'Valid':False,'ShipType':0,'CallSign':''}}}}
+        self.store.ingest(normalize(part_a,10002))
+        ship=self.store.snapshot('test',10002)[0]
+        self.assertEqual(ship['ship_type'],70);self.assertEqual(ship['callsign'],'KNOWN');self.assertEqual(ship['name'],'NEW NAME')
+        part_b={'MessageType':'StaticDataReport','MetaData':{'MMSI':123456789,'ShipName':'STALE META'},'Message':{'StaticDataReport':{'Valid':True,'ReportA':{'Valid':False,'Name':'INVALID NAME'},'ReportB':{'Valid':True,'ShipType':52,'CallSign':'NEW CALL'}}}}
+        self.store.ingest(normalize(part_b,10003));ship=self.store.snapshot('test',10003)[0]
+        self.assertEqual(ship['name'],'NEW NAME');self.assertEqual(ship['ship_type'],52);self.assertEqual(ship['callsign'],'NEW CALL')
+
+    def test_vessel_moving_between_harbours_is_not_current_in_previous_harbour(self):
+        other=copy.deepcopy(self.store.config['harbours'][0]);other.update(id='other',subscription_bbox=[[7,7],[13,13]],boundary=[[9,9],[9,11],[11,11],[11,9]],anchorage=[[9.5,9.5],[9.5,10.5],[10.5,10.5],[10.5,9.5]])
+        self.store.config['harbours'].append(other)
+        self.store.ingest(point(10000,lat=2));self.store.ingest(point(10060));self.store.ingest(point(10120))
+        self.assertEqual(len(self.store.events('test',0)),1)
+        self.store.ingest(point(20000,lat=10,lon=10))
+        self.assertEqual(self.store.snapshot('test',20000),[])
+        self.assertEqual(len(self.store.snapshot('other',20000)),1)
+        self.assertEqual(len(self.store.events('test',0)),1)
 
     def test_third_harbour_is_derived_from_config(self):
         third=copy.deepcopy(self.store.config['harbours'][0]);third['id']='third';self.store.config['harbours'].append(third)

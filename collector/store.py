@@ -115,6 +115,10 @@ class Store:
             ships = []
             for row in rows:
                 ship, state = json.loads(row[0]), json.loads(row[1])
+                # States/events remain historical, but a vessel's latest global
+                # position must not appear as current in a previously visited port.
+                if harbour not in ship.get("harbours", []):
+                    continue
                 if not ship.get("position_at"):
                     continue
                 ship["state"] = state

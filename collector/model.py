@@ -54,7 +54,9 @@ def normalize(envelope, now):
     if observed is None:
         return None
     item = {"mmsi": mmsi, "observed_at": observed}
-    name = clean(body.get("Name") or meta.get("ShipName"))
+    # Type 24 reports are split. A Part B frame's metadata may contain an old
+    # cached name, so only its valid Part A is allowed to change the vessel name.
+    name = None if kind == "StaticDataReport" else clean(body.get("Name") or meta.get("ShipName"))
     if name:
         item["name"] = name
     if kind in POSITION_TYPES:
@@ -63,15 +65,23 @@ def normalize(envelope, now):
         if lat is None or lon is None:
             return None
         item.update(lat=lat, lon=lon, position_at=observed)
-        for dest, source, high in [("speed", "Sog", 102.2), ("course", "Cog", 359.9), ("heading", "TrueHeading", 359), ("nav_status", "NavigationalStatus", 14)]:
+        speed_max = 62 if kind == "LongRangeAisBroadcastMessage" else 102.2
+        course_max = 359 if kind == "LongRangeAisBroadcastMessage" else 359.9
+        for dest, source, high in [("speed", "Sog", speed_max), ("course", "Cog", course_max), ("heading", "TrueHeading", 359), ("nav_status", "NavigationalStatus", 14)]:
             item[dest] = number(body.get(source), 0, high)
         if kind == "ExtendedClassBPositionReport":
             item["ship_type"] = number(body.get("Type"), 0, 99)
     else:
         # Class B static data is split into reports A and B.
-        a = body.get("ReportA") if isinstance(body.get("ReportA"), dict) else {}
-        b = body.get("ReportB") if isinstance(body.get("ReportB"), dict) else {}
-        for key, value in {"name": clean(body.get("Name") or a.get("Name") or meta.get("ShipName")), "callsign": clean(body.get("CallSign") or b.get("CallSign"), 20), "destination": clean(body.get("Destination")), "ship_type": number(body.get("Type", b.get("ShipType")), 0, 99), "imo": number(body.get("ImoNumber"), 1000000, 9999999)}.items():
+        a = body.get("ReportA") if isinstance(body.get("ReportA"), dict) and body["ReportA"].get("Valid") is True else {}
+        b = body.get("ReportB") if isinstance(body.get("ReportB"), dict) and body["ReportB"].get("Valid") is True else {}
+        if kind == "StaticDataReport":
+            if not a and not b:
+                return None
+            fields = {"name": clean(a.get("Name")), "callsign": clean(b.get("CallSign"), 20), "ship_type": number(b.get("ShipType"), 0, 99)}
+        else:
+            fields = {"name": clean(body.get("Name") or meta.get("ShipName")), "callsign": clean(body.get("CallSign"), 20), "destination": clean(body.get("Destination")), "ship_type": number(body.get("Type"), 0, 99), "imo": number(body.get("ImoNumber"), 1000000, 9999999)}
+        for key, value in fields.items():
             if value is not None:
                 item[key] = value
         item["static_at"] = observed
