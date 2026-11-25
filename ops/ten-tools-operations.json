@@ -295,7 +295,7 @@
   },
   "workflow_source_sha256": {
     "harbournow": {
-      ".github/workflows/pages.yml": "0a2c79e287973a5f49597f89aa713380591535dc64811fb978e3eecbdd9f5385"
+      ".github/workflows/pages.yml": "78215efdbe5a4c3772246a9bcda70db3e1b106e5ffea973c0ba22164d7bb0406"
     },
     "screenplaces": {
       ".github/workflows/schedule-guard.yml": "59976f9793b55c204ed08756c7f817abd14267a75f68ac66e8ad109f8f18a5f7",
